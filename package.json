@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/reJoker/canvas-polygon#readme",
   "devDependencies": {
-    "common.js": "^1.1.1"
+    "webpack": "^1.12.11"
   }
 }
