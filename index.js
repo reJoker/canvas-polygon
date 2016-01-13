@@ -1,22 +1,26 @@
-module.exports = function (canvas) {
+module.exports = function (canvas, options) {
     var obj = {},
-        points,
+        points = [],
         width = canvas.width,
         height = canvas.height,
         ctx = canvas.getContext('2d');
 
-    points = Array.apply(null, {length: 4}).map(function (d, i) {
-        return {
-            x: i * i * 10,
-            y: i * i * 10
-        };
-    });
+    if (options && options.points) {
+        loadPoints(options.points);
+    }
+
+    function loadPoints (dots) {
+        return points = dots;
+    }
 
     function clearRect () {
         ctx.clearRect(0, 0, width, height);
+        ctx.rect(0, 0, width, height);
+        ctx.fillStyle = 'rgb(0, 0, 120)';
+        ctx.fill();
     }
 
-    function drawEdges () {
+    function drawPolygon () {
         ctx.beginPath();
         points.forEach(function (p, i) {
             if (!i) {
@@ -33,9 +37,11 @@ module.exports = function (canvas) {
 
     function drawDots () {
         points.forEach(function (d) {
+            ctx.beginPath();
             ctx.arc(d.x, d.y, 6, 0, Math.PI * 2);
             ctx.fillStyle = 'rgb(255, 0, 0)';
             ctx.fill();
+            ctx.closePath();
         });
     }
 
