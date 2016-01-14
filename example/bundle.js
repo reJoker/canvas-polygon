@@ -67,21 +67,19 @@
 	        points = [],
 	        width = canvas.width,
 	        height = canvas.height,
-	        ctx = canvas.getContext('2d');
+	        ctx = canvas.getContext('2d'),
+	        selected;
 
 	    if (options && options.points) {
 	        loadPoints(options.points);
 	    }
 
 	    function loadPoints (dots) {
-	        return points = dots;
+	        return points = dots.slice(0);
 	    }
 
 	    function clearRect () {
 	        ctx.clearRect(0, 0, width, height);
-	        ctx.rect(0, 0, width, height);
-	        ctx.fillStyle = 'rgb(0, 0, 120)';
-	        ctx.fill();
 	    }
 
 	    function drawPolygon () {
@@ -114,7 +112,36 @@
 	        clearRect();
 	        drawPolygon();
 	        drawDots();
-	    }
+	    };
+
+	    obj.getPoints = function () {
+	        return points.slice(0);
+	    };
+
+	    // bind event to controller
+	    canvas.addEventListener('mousedown', function (e) {
+	        var distance = 20;
+	        selected = points.findIndex(function (d) {
+	            return Math.abs(d.x - e.clientX) + Math.abs(d.y - e.clientY) < distance;
+	        });
+	    });
+
+	    canvas.addEventListener('mouseup', function (e) {
+	        selected = -1;
+	    });
+
+	    canvas.addEventListener('mousemove', function (e) {
+	        var movingObj = points[selected];
+	        if (movingObj) {
+	            movingObj.x = e.clientX;
+	            movingObj.y = e.clientY;
+	            obj.draw();
+	        }
+	    });
+
+	    canvas.addEventListener('mouseout', function (e) {
+	        selected = -1;
+	    });
 
 	    return obj
 	}
