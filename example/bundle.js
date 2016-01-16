@@ -122,7 +122,7 @@
 	    canvas.addEventListener('mousedown', function (e) {
 	        var distance = 20;
 	        selected = points.findIndex(function (d) {
-	            return Math.abs(d.x - e.clientX) + Math.abs(d.y - e.clientY) < distance;
+	            return Math.pow(d.x - e.clientX, 2) + Math.pow(d.y - e.clientY, 2) < Math.pow(distance, 2);
 	        });
 	    });
 
