@@ -4,6 +4,7 @@ module.exports = function (canvas, options) {
         width = canvas.width,
         height = canvas.height,
         ctx = canvas.getContext('2d'),
+        lineWidth = 1,
         selected;
 
     if (options && options.points) {
@@ -28,6 +29,7 @@ module.exports = function (canvas, options) {
 
     function drawPolygon () {
         ctx.beginPath();
+        ctx.lineWidth = lineWidth;
         points.forEach(function (p, i) {
             if (!i) {
                 return ctx.moveTo(p.x, p.y);
@@ -51,6 +53,10 @@ module.exports = function (canvas, options) {
         });
     }
 
+    obj.setLineWidth = function (w) {
+        lineWidth = w;
+        return obj;
+    }
 
     obj.draw = function () {
         clearRect();
