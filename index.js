@@ -10,6 +10,14 @@ module.exports = function (canvas, options) {
         loadPoints(options.points);
     }
 
+    function rgba () {
+        var func = arguments.length > 3 ? 'rgba' : 'rgb',
+            parms = Array.prototype.join.call(arguments);
+
+        return func + '(' + parms + ')';
+    }
+
+
     function loadPoints (dots) {
         return points = dots.slice(0);
     }
@@ -27,9 +35,9 @@ module.exports = function (canvas, options) {
             return ctx.lineTo(p.x, p.y);
         });
         ctx.closePath();
-        ctx.strokeStyle = 'rgb(255, 0, 0)';
+        ctx.strokeStyle = rgba(255, 0, 0);
         ctx.stroke();
-        ctx.fillStyle = 'rgba(255, 0, 0, .2)';
+        ctx.fillStyle = rgba(255, 0, 0, .2);
         ctx.fill();
     }
 
@@ -37,7 +45,7 @@ module.exports = function (canvas, options) {
         points.forEach(function (d) {
             ctx.beginPath();
             ctx.arc(d.x, d.y, 6, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgb(255, 0, 0)';
+            ctx.fillStyle = rgba(255, 0, 0);
             ctx.fill();
             ctx.closePath();
         });
