@@ -1,5 +1,6 @@
 var canvasPolygon = require('../index'),
     canvas = document.getElementById('canvas'),
+    c,
     options = {};
 
 options.points = Array.apply(null, {length: 17}).map(function (d, i, arr) {
@@ -9,4 +10,8 @@ options.points = Array.apply(null, {length: 17}).map(function (d, i, arr) {
     };
 });
 
-canvasPolygon(canvas, options).lineWidth(6).draw();
+c = canvasPolygon(canvas);
+c.background = 'rgba(0, 0, 0, .7)';
+c.points = options.points;
+c.lineWidth = 6;
+c.draw();

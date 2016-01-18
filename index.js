@@ -5,6 +5,7 @@ module.exports = function (canvas, options) {
         height = canvas.height,
         ctx = canvas.getContext('2d'),
         lineWidth = 1,
+        backgroundColor = 'transparent',
         selected;
 
     if (options && options.points) {
@@ -25,6 +26,8 @@ module.exports = function (canvas, options) {
 
     function clearRect () {
         ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = backgroundColor;
+        ctx.fillRect(0, 0, width, height);
     }
 
     function drawPolygon () {
@@ -53,23 +56,38 @@ module.exports = function (canvas, options) {
         });
     }
 
-    obj.lineWidth = function (w) {
-        if (arguments.length) {
-            lineWidth = w;
-            return obj;
-        }
-        return lineWidth;
-    }
-
     obj.draw = function () {
         clearRect();
         drawPolygon();
         drawDots();
     };
 
-    obj.getPoints = function () {
-        return points.slice(0);
-    };
+    Object.defineProperty(obj, 'lineWidth', {
+        get: function () {
+            return lineWidth;
+        },
+        set: function (w) {
+            return lineWidth = w;
+        }
+    });
+
+    Object.defineProperty(obj, 'points', {
+        get: function () {
+            return points.slice(0);
+        },
+        set: function (p) {
+            return points = p.slice(0);
+        }
+    });
+
+    Object.defineProperty(obj, 'background', {
+        get: function () {
+            return backgroundColor;
+        },
+        set: function (c) {
+            return backgroundColor = c;
+        }
+    });
 
     // bind event to controller
     canvas.addEventListener('mousedown', function (e) {
