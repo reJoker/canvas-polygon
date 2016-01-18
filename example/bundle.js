@@ -55,7 +55,7 @@
 	    };
 	});
 
-	canvasPolygon(canvas, options).setLineWidth(6).draw();
+	canvasPolygon(canvas, options).lineWidth(6).draw();
 
 
 /***/ },
@@ -117,9 +117,12 @@
 	        });
 	    }
 
-	    obj.setLineWidth = function (w) {
-	        lineWidth = w;
-	        return obj;
+	    obj.lineWidth = function (w) {
+	        if (arguments.length) {
+	            lineWidth = w;
+	            return obj;
+	        }
+	        return lineWidth;
 	    }
 
 	    obj.draw = function () {

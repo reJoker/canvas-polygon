@@ -9,4 +9,4 @@ options.points = Array.apply(null, {length: 17}).map(function (d, i, arr) {
     };
 });
 
-canvasPolygon(canvas, options).setLineWidth(6).draw();
+canvasPolygon(canvas, options).lineWidth(6).draw();

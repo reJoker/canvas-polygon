@@ -53,9 +53,12 @@ module.exports = function (canvas, options) {
         });
     }
 
-    obj.setLineWidth = function (w) {
-        lineWidth = w;
-        return obj;
+    obj.lineWidth = function (w) {
+        if (arguments.length) {
+            lineWidth = w;
+            return obj;
+        }
+        return lineWidth;
     }
 
     obj.draw = function () {
