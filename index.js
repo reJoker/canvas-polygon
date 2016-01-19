@@ -40,9 +40,13 @@ module.exports = function (canvas, options) {
             return ctx.lineTo(p.x, p.y);
         });
         ctx.closePath();
+        ctx.globalCompositeOperation = "xor";
+        ctx.fillStyle = rgba(255, 0, 0);
+        ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
         ctx.strokeStyle = rgba(255, 0, 0);
         ctx.stroke();
-        ctx.fillStyle = rgba(255, 0, 0, .2);
+        ctx.fillStyle = rgba(155, 0, 0, .1);
         ctx.fill();
     }
 
