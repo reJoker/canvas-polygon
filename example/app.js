@@ -11,7 +11,10 @@ options.points = Array.apply(null, {length: 17}).map(function (d, i, arr) {
 });
 
 c = canvasPolygon(canvas);
-c.background = 'rgba(0, 0, 0, .4)';
+c.background = '#000000';
+c.backgroundAlpha = .2;
 c.points = options.points;
 c.lineWidth = 6;
+c.foreground = '#a3e320';
+c.foregroundAlpha = 0.1;
 c.draw();

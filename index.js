@@ -6,6 +6,9 @@ module.exports = function (canvas, options) {
         ctx = canvas.getContext('2d'),
         lineWidth = 1,
         backgroundColor = 'transparent',
+        backgroundAlpha = .1,
+        foregroundColor = '#ff0000',
+        foregroundAlpha = .2,
         selected;
 
     if (options && options.points) {
@@ -26,8 +29,10 @@ module.exports = function (canvas, options) {
 
     function clearRect () {
         ctx.clearRect(0, 0, width, height);
+        ctx.globalAlpha = backgroundAlpha;
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
+        ctx.globalAlpha = 1;
     }
 
     function drawPolygon () {
@@ -41,20 +46,21 @@ module.exports = function (canvas, options) {
         });
         ctx.closePath();
         ctx.globalCompositeOperation = "xor";
-        ctx.fillStyle = rgba(255, 0, 0);
+        ctx.fillStyle = foregroundColor;
         ctx.fill();
         ctx.globalCompositeOperation = "source-over";
-        ctx.strokeStyle = rgba(255, 0, 0);
+        ctx.strokeStyle = foregroundColor;
         ctx.stroke();
-        ctx.fillStyle = rgba(155, 0, 0, .1);
+        ctx.globalAlpha = foregroundAlpha;
         ctx.fill();
+        ctx.globalAlpha = 1;
     }
 
     function drawDots () {
         points.forEach(function (d) {
             ctx.beginPath();
             ctx.arc(d.x, d.y, 6, 0, Math.PI * 2);
-            ctx.fillStyle = rgba(255, 0, 0);
+            ctx.fillStyle = foregroundColor;
             ctx.fill();
             ctx.closePath();
         });
@@ -90,6 +96,33 @@ module.exports = function (canvas, options) {
         },
         set: function (c) {
             return backgroundColor = c;
+        }
+    });
+
+    Object.defineProperty(obj, 'backgroundAlpha', {
+        get: function () {
+            return backgroundAlpha;
+        },
+        set: function (alpha) {
+            return backgroundAlpha = alpha;
+        }
+    });
+
+    Object.defineProperty(obj, 'foreground', {
+        get: function () {
+            return foregroundColor;
+        },
+        set: function (c) {
+            return foregroundColor = c;
+        }
+    });
+
+    Object.defineProperty(obj, 'foregroundAlpha', {
+        get: function () {
+            return foregroundAlpha;
+        },
+        set: function (alpha) {
+            return foregroundAlpha = alpha;
         }
     });
 
