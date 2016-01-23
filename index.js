@@ -9,6 +9,7 @@ module.exports = function (canvas, options) {
         backgroundAlpha = .1,
         foregroundColor = '#ff0000',
         foregroundAlpha = .2,
+        polygons,
         selected;
 
     if (options && options.points) {
@@ -123,6 +124,15 @@ module.exports = function (canvas, options) {
         },
         set: function (alpha) {
             return foregroundAlpha = alpha;
+        }
+    });
+
+    Object.defineProperty(obj, 'polygons', {
+        get: function () {
+            return polygons.slice(0);
+        },
+        set: function (data) {
+            return polygons = data;
         }
     });
 
