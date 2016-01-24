@@ -5,6 +5,7 @@ module.exports = function (canvas, options) {
         height = canvas.height,
         ctx = canvas.getContext('2d'),
         lineWidth = 1,
+        lineColor = '#ff0000',
         backgroundColor = 'transparent',
         backgroundAlpha = .1,
         foregroundColor = '#ff0000',
@@ -46,13 +47,11 @@ module.exports = function (canvas, options) {
             return ctx.lineTo(p.x, p.y);
         });
         ctx.closePath();
-        ctx.globalCompositeOperation = "xor";
-        ctx.fillStyle = foregroundColor;
-        ctx.fill();
         ctx.globalCompositeOperation = "source-over";
-        ctx.strokeStyle = foregroundColor;
+        ctx.strokeStyle = lineColor;
         ctx.stroke();
         ctx.globalAlpha = foregroundAlpha;
+        ctx.fillStyle = foregroundColor;
         ctx.fill();
         ctx.globalAlpha = 1;
     }
@@ -79,6 +78,15 @@ module.exports = function (canvas, options) {
         },
         set: function (w) {
             return lineWidth = w;
+        }
+    });
+
+    Object.defineProperty(obj, 'lineColor', {
+        get: function () {
+            return lineColor;
+        },
+        set: function (c) {
+            return lineColor = c;
         }
     });
 
