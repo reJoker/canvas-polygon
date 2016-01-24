@@ -1,19 +1,45 @@
 var canvasPolygon = require('../index'),
     canvas = document.getElementById('canvas'),
     c,
-    options = {};
+    polygons;
 
-options.points = Array.apply(null, {length: 8}).map(function (d, i, arr) {
+function genColor () {
+    var ret = '#';
+    ret += Array.apply(null, {length: 6}).map(function (d, i) {
+        return Math.floor(Math.random() * 16).toString(16);
+    }).join('');
+    return ret;
+}
+
+polygons = Array.apply(null, {length: 3}).map(function (data, index, wholeArr) {
+    var points;
+    
+    points = Array.apply(null, {length: 8}).map(function () {
+        return {
+            x: canvas.width / (wholeArr.length + 1) * (index + 1),
+            y: canvas.height / 2
+        };
+    }).map(function (d, idx, arr) {
+        return {
+            x: d.x + 100 * Math.cos(Math.PI * 2 * idx / arr.length),
+            y: d.y + 100 * Math.sin(Math.PI * 2 * idx / arr.length),
+        };
+    });
+
     return {
-        x: canvas.width / 2 + 100 * Math.cos(Math.PI * 2 * i / arr.length),
-        y: canvas.height / 2 + 100 * Math.sin(Math.PI * 2 * i / arr.length),
+        points: points,
+        color: genColor(),
+        lineColor: genColor(),
+        lineWidth: 1
     };
-})
+});
 
+
+canvas.style.backgroundColor = 'transparent';
 c = canvasPolygon(canvas);
-c.background = '#000000';
-c.backgroundAlpha = .2;
-c.points = options.points;
+c.polygons = polygons;
+c.background = 'black';
+c.backgroundAlpha = .4;
 c.lineWidth = 1;
 c.foreground = '#ff0000';
 c.foregroundAlpha = 0.1;

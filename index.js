@@ -1,4 +1,4 @@
-module.exports = function (canvas, options) {
+module.exports = function (canvas) {
     var obj = {},
         points = [],
         width = canvas.width,
@@ -10,57 +10,53 @@ module.exports = function (canvas, options) {
         backgroundAlpha = .1,
         foregroundColor = '#ff0000',
         foregroundAlpha = .2,
-        polygons,
+        polygons = [],
         selected;
-
-    if (options && options.points) {
-        loadPoints(options.points);
-    }
-
-    function rgba () {
-        var func = arguments.length > 3 ? 'rgba' : 'rgb',
-            parms = Array.prototype.join.call(arguments);
-
-        return func + '(' + parms + ')';
-    }
-
-
-    function loadPoints (dots) {
-        return points = dots.slice(0);
-    }
 
     function clearRect () {
         ctx.clearRect(0, 0, width, height);
+    }
+
+    function drawBackground () {
+        ctx.globalCompositeOperation = "destination-over";
         ctx.globalAlpha = backgroundAlpha;
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
+        // get back to default settings
         ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
     }
 
     function drawPolygon () {
+        polygons.slice(0).reverse().forEach(function (d, i) {
+            drawShape(d, i);
+            drawDots(d, i);
+        });
+    }
+
+    function drawShape (settings, idx) {
         ctx.beginPath();
-        ctx.lineWidth = lineWidth;
-        points.forEach(function (p, i) {
+        ctx.lineWidth = settings.lineWidth || lineWidth;
+        settings.points.forEach(function (p, i) {
             if (!i) {
                 return ctx.moveTo(p.x, p.y);
             }  
             return ctx.lineTo(p.x, p.y);
         });
         ctx.closePath();
-        ctx.globalCompositeOperation = "source-over";
-        ctx.strokeStyle = lineColor;
+        ctx.strokeStyle = settings.lineColor || lineColor;
         ctx.stroke();
-        ctx.globalAlpha = foregroundAlpha;
-        ctx.fillStyle = foregroundColor;
+        ctx.globalAlpha = settings.alpha || foregroundAlpha;
+        ctx.fillStyle = settings.color || foregroundColor;
         ctx.fill();
         ctx.globalAlpha = 1;
     }
 
-    function drawDots () {
-        points.forEach(function (d) {
+    function drawDots (settings) {
+        settings.points.forEach(function (d) {
             ctx.beginPath();
             ctx.arc(d.x, d.y, 6, 0, Math.PI * 2);
-            ctx.fillStyle = foregroundColor;
+            ctx.fillStyle = settings.color || foregroundColor;
             ctx.fill();
             ctx.closePath();
         });
@@ -69,7 +65,7 @@ module.exports = function (canvas, options) {
     obj.draw = function () {
         clearRect();
         drawPolygon();
-        drawDots();
+        drawBackground();
     };
 
     Object.defineProperty(obj, 'lineWidth', {
@@ -145,6 +141,7 @@ module.exports = function (canvas, options) {
     });
 
     // bind event to controller
+    /*
     canvas.addEventListener('mousedown', function (e) {
         var distance = 20;
         selected = points.findIndex(function (d) {
@@ -168,6 +165,8 @@ module.exports = function (canvas, options) {
     canvas.addEventListener('mouseout', function (e) {
         selected = -1;
     });
+    */
+    
 
     return obj
 }
