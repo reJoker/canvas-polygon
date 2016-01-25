@@ -22,5 +22,8 @@
   "homepage": "https://github.com/reJoker/canvas-polygon#readme",
   "devDependencies": {
     "webpack": "^1.12.11"
+  },
+  "dependencies": {
+    "point-in-polygon": "^1.0.0"
   }
 }

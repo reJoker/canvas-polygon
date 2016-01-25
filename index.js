@@ -1,3 +1,5 @@
+var inside = require('point-in-polygon');
+
 module.exports = function (canvas) {
     var obj = {},
         points = [],
@@ -11,7 +13,17 @@ module.exports = function (canvas) {
         foregroundColor = '#ff0000',
         foregroundAlpha = .2,
         polygons = [],
+        _activatedPolygon = -1,
         selected;
+
+    function getInsidePolygon (cursorPosition) {
+        return polygons.slice(0).findIndex(function (polygon) {
+            var p = polygon.points.map(function (d) {
+                return [d.x, d.y];
+            });
+            return inside(cursorPosition, p);
+        });
+    }
 
     function clearRect () {
         ctx.clearRect(0, 0, width, height);
@@ -28,7 +40,7 @@ module.exports = function (canvas) {
     }
 
     function drawPolygon () {
-        polygons.slice(0).reverse().forEach(function (d, i) {
+        polygons.slice(0).forEach(function (d, i) {
             drawShape(d, i);
             drawDots(d, i);
         });
@@ -46,7 +58,9 @@ module.exports = function (canvas) {
         ctx.closePath();
         ctx.strokeStyle = settings.lineColor || lineColor;
         ctx.stroke();
-        ctx.globalAlpha = settings.alpha || foregroundAlpha;
+        if (idx !== _activatedPolygon) {
+            ctx.globalAlpha = settings.alpha || foregroundAlpha;
+        }
         ctx.fillStyle = settings.color || foregroundColor;
         ctx.fill();
         ctx.globalAlpha = 1;
@@ -133,11 +147,16 @@ module.exports = function (canvas) {
 
     Object.defineProperty(obj, 'polygons', {
         get: function () {
-            return polygons.slice(0);
+            return polygons.slice(0).reverse();
         },
         set: function (data) {
-            return polygons = data;
+            return polygons = data.slice(0).reverse();
         }
+    });
+
+    canvas.addEventListener('mousemove', function (e) {
+        _activatedPolygon = getInsidePolygon([e.clientX, e.clientY]);
+        obj.draw();
     });
 
     // bind event to controller
