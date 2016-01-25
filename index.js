@@ -14,6 +14,7 @@ module.exports = function (canvas) {
         foregroundAlpha = .2,
         polygons = [],
         _activatedPolygon = -1,
+        _mode = 'edit',
         selected;
 
     function getInsidePolygon (cursorPosition) {
@@ -151,6 +152,15 @@ module.exports = function (canvas) {
         },
         set: function (data) {
             return polygons = data.slice(0).reverse();
+        }
+    });
+
+    Object.defineProperty(obj, 'mode', {
+        get: function () {
+            return _mode;
+        },
+        set: function (mode) {
+            return _mode = mode;
         }
     });
 
