@@ -14,7 +14,8 @@ module.exports = function (canvas) {
         foregroundAlpha = .2,
         polygons = [],
         _activatedPolygon = -1,
-        _mode = 'edit',
+        __onEditPolygonIdx = -1,
+        _mode = 'show',
         selected;
 
     function getInsidePolygon (cursorPosition) {
@@ -173,37 +174,64 @@ module.exports = function (canvas) {
         }
     });
 
-    canvas.addEventListener('mousemove', function (e) {
-        _activatedPolygon = getInsidePolygon([e.clientX, e.clientY]);
-        obj.draw();
-    });
 
     // bind event to controller
-    /*
+    canvas.addEventListener('mousemove', function (e) {
+        var movingDot; 
+        switch (_mode) {
+            case 'show':
+                _activatedPolygon = getInsidePolygon([e.clientX, e.clientY]);
+                obj.draw();
+                break;
+            case 'edit':
+                movingDot = polygons[_onEditPolygonIdx].points[selected];
+                if (movingDot) {
+                    movingDot.x = e.clientX;
+                    movingDot.y = e.clientY;
+                    obj.draw();
+                };
+                break;
+        }
+    });
+
     canvas.addEventListener('mousedown', function (e) {
-        var distance = 20;
-        selected = points.findIndex(function (d) {
-            return Math.pow(d.x - e.clientX, 2) + Math.pow(d.y - e.clientY, 2) < Math.pow(distance, 2);
-        });
+        var insidePolygonIdx,
+            distance;
+
+        switch (_mode) {
+            case 'show':
+                insidePolygonIdx = getInsidePolygon([e.clientX, e.clientY]);
+               if (~insidePolygonIdx) {
+                   obj.mode = 'edit';
+                   _activatedPolygon = -1;
+                   _onEditPolygonIdx = insidePolygonIdx;
+                   obj.draw();
+               }
+               break;
+            case 'edit':
+                distance = 20;
+                selected = polygons[_onEditPolygonIdx].points.findIndex(function (d) {
+                    return Math.pow(d.x - e.clientX, 2) + Math.pow(d.y - e.clientY, 2) < Math.pow(distance, 2);
+                });
+                break;
+        }
     });
 
     canvas.addEventListener('mouseup', function (e) {
-        selected = -1;
-    });
-
-    canvas.addEventListener('mousemove', function (e) {
-        var movingObj = points[selected];
-        if (movingObj) {
-            movingObj.x = e.clientX;
-            movingObj.y = e.clientY;
-            obj.draw();
+        switch (_mode) {
+            case 'edit':
+                selected = -1;
+                break;
         }
     });
 
     canvas.addEventListener('mouseout', function (e) {
-        selected = -1;
+        switch (_mode) {
+            case 'edit':
+                selected = -1;
+                break;
+        }
     });
-    */
     
 
     return obj
