@@ -160,7 +160,16 @@ module.exports = function (canvas) {
             return _mode;
         },
         set: function (mode) {
-            return _mode = mode;
+            var validModes = [
+                'edit',
+                'add',
+                'show'
+            ];
+            if (~validModes.indexOf(mode)) {
+                return _mode = mode;
+            }
+            console.error('Not an acceptable mode');
+            return;
         }
     });
 
