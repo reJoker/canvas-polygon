@@ -14,7 +14,7 @@ module.exports = function (canvas) {
         foregroundAlpha = .2,
         polygons = [],
         _activatedPolygon = -1,
-        __onEditPolygonIdx = -1,
+        _onEditPolygonIdx = -1,
         _mode = 'show',
         selected;
 
@@ -44,7 +44,9 @@ module.exports = function (canvas) {
     function drawPolygon () {
         polygons.slice(0).forEach(function (d, i) {
             drawShape(d, i);
-            drawDots(d, i);
+            if (i === _onEditPolygonIdx) {
+                drawDots(d, i);
+            }
         });
     }
 
