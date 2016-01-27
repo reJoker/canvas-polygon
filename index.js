@@ -16,6 +16,7 @@ module.exports = function (canvas) {
         _activatedPolygon = -1,
         _onEditPolygonIdx = -1,
         _mode = 'show',
+        _onDragStart,
         selected;
 
     function getInsidePolygon (cursorPosition) {
@@ -179,7 +180,8 @@ module.exports = function (canvas) {
 
     // bind event to controller
     canvas.addEventListener('mousemove', function (e) {
-        var movingDot; 
+        var movingDot,
+            _draggingPolygon; 
         switch (_mode) {
             case 'show':
                 _activatedPolygon = getInsidePolygon([e.clientX, e.clientY]);
@@ -191,18 +193,27 @@ module.exports = function (canvas) {
                     movingDot.x = e.clientX;
                     movingDot.y = e.clientY;
                     obj.draw();
-                };
+                } else if (_onDragStart) {
+                    _draggingPolygon = _onDragStart.map(function (d, i) {
+                        return {
+                            x: d.x + e.clientX,
+                            y: d.y + e.clientY
+                        };
+                    });
+                    polygons[_onEditPolygonIdx].points = _draggingPolygon;
+                    obj.draw();
+                }
                 break;
         }
     });
 
     canvas.addEventListener('mousedown', function (e) {
-        var insidePolygonIdx,
+        var insidePolygonIdx = getInsidePolygon([e.clientX, e.clientY]),
+            _onEditPolygonPoints,
             distance;
 
         switch (_mode) {
             case 'show':
-                insidePolygonIdx = getInsidePolygon([e.clientX, e.clientY]);
                if (~insidePolygonIdx) {
                    obj.mode = 'edit';
                    _activatedPolygon = -1;
@@ -212,9 +223,35 @@ module.exports = function (canvas) {
                break;
             case 'edit':
                 distance = 20;
-                selected = polygons[_onEditPolygonIdx].points.findIndex(function (d) {
-                    return Math.pow(d.x - e.clientX, 2) + Math.pow(d.y - e.clientY, 2) < Math.pow(distance, 2);
+                _onEditPolygonPoints = polygons[_onEditPolygonIdx].points;
+                selected = _onEditPolygonPoints.findIndex(function (d) {
+                    var a = Math.pow(d.x - e.clientX, 2),
+                        b = Math.pow(d.y - e.clientY, 2),
+                        c = Math.pow(distance, 2);
+
+                    return a + b < c;
                 });
+                if (!~selected) {  // not on the dots of on edit polygon
+                    if (~insidePolygonIdx) {  // inside a polygon
+                        if (insidePolygonIdx === _onEditPolygonIdx) {  
+                            // inside the on edit polygon
+                            // set the drag start point
+                            _onDragStart = _onEditPolygonPoints.map(function (d, i) {
+                                return {
+                                    x: d.x - e.clientX,
+                                    y: d.y - e.clientY
+                                };
+                            });
+                        } else {
+                            _onEditPolygonIdx = insidePolygonIdx;
+                            obj.draw();
+                        }
+                    } else {  // ouside of all the polygons
+                        obj.mode = 'show'
+                        _onEditPolygonIdx = -1;
+                        obj.draw();
+                    }
+                }
                 break;
         }
     });
@@ -223,6 +260,7 @@ module.exports = function (canvas) {
         switch (_mode) {
             case 'edit':
                 selected = -1;
+                _onDragStart = null;
                 break;
         }
     });
@@ -231,6 +269,7 @@ module.exports = function (canvas) {
         switch (_mode) {
             case 'edit':
                 selected = -1;
+                _onDragStart = null;
                 break;
         }
     });
