@@ -44,7 +44,9 @@ module.exports = function (canvas) {
 
     function drawPolygon () {
         polygons.slice(0).forEach(function (d, i) {
+            ctx.globalCompositeOperation = "destination-over";
             drawShape(d, i);
+            ctx.globalCompositeOperation = "source-over";
             if (i === _onEditPolygonIdx) {
                 drawDots(d, i);
             }
@@ -152,10 +154,10 @@ module.exports = function (canvas) {
 
     Object.defineProperty(obj, 'polygons', {
         get: function () {
-            return polygons.slice(0).reverse();
+            return polygons.slice(0);
         },
         set: function (data) {
-            return polygons = data.slice(0).reverse();
+            return polygons = data.slice(0);
         }
     });
 
