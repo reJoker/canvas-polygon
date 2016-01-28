@@ -42,6 +42,6 @@ c.background = 'black';
 c.backgroundAlpha = .4;
 c.lineWidth = 1;
 c.foreground = '#ff0000';
-c.foregroundAlpha = 0.1;
+c.foregroundAlpha = 0.6;
 c.draw();
 
