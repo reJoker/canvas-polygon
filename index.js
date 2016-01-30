@@ -1,5 +1,6 @@
 var inside = require('point-in-polygon');
 
+
 module.exports = function (canvas) {
     var obj = {},
         points = [],
@@ -17,7 +18,25 @@ module.exports = function (canvas) {
         _onEditPolygonIdx = -1,
         _mode = 'show',
         _onDragStart,
+        _addPolygon = [],
         selected;
+
+    function isPositionClose (p1, p2) {
+        var distance = 16,
+            a,
+            b,
+            c;
+
+        if (typeof p1 !== 'object') {
+            return false;
+        }
+
+        a = Math.pow(p1.x - p2.x, 2),
+        b = Math.pow(p1.y - p2.y, 2),
+        c = Math.pow(distance, 2);
+
+        return a + b < c;
+    }
 
     function getInsidePolygon (cursorPosition) {
         return polygons.slice(0).findIndex(function (polygon) {
@@ -59,7 +78,7 @@ module.exports = function (canvas) {
         settings.points.forEach(function (p, i) {
             if (!i) {
                 return ctx.moveTo(p.x, p.y);
-            }  
+            }
             return ctx.lineTo(p.x, p.y);
         });
         ctx.closePath();
@@ -83,10 +102,40 @@ module.exports = function (canvas) {
         });
     }
 
+    function drawIncompletePolygon () {
+        var points = _addPolygon.slice(0),
+            first = points[0],
+            last = points.pop();
+
+        ctx.beginPath();
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = lineColor;
+
+        points.forEach(function (p, i) {
+            if (!i) {
+                return ctx.moveTo(p.x, p.y);
+            }
+            return ctx.lineTo(p.x, p.y);
+        });
+        if (isPositionClose(first, last)) {
+            ctx.lineTo(first.x, first.y);
+            ctx.stroke();
+            drawDots({
+                points: [first]
+            });
+        } else {
+            ctx.lineTo(last.x, last.y);
+        }
+        ctx.stroke();
+    }
+
     obj.draw = function () {
         clearRect();
         drawPolygon();
-        drawBackground();
+        // drawBackground();
+        if (_mode === 'add' && _addPolygon.length) {
+            drawIncompletePolygon();
+        }
     };
 
     Object.defineProperty(obj, 'lineWidth', {
@@ -183,8 +232,20 @@ module.exports = function (canvas) {
     // bind event to controller
     canvas.addEventListener('mousemove', function (e) {
         var movingDot,
-            _draggingPolygon; 
+            _draggingPolygon;
         switch (_mode) {
+            case 'add':
+                if (_addPolygon && _addPolygon.length) {
+                    if (_addPolygon.length > 1) {
+                        _addPolygon.pop();
+                    }
+                    _addPolygon.push({
+                        x: e.clientX,
+                        y: e.clientY
+                    });
+                }
+                obj.draw();
+                break;
             case 'show':
                 _activatedPolygon = getInsidePolygon([e.clientX, e.clientY]);
                 obj.draw();
@@ -209,10 +270,41 @@ module.exports = function (canvas) {
         }
     });
 
+    canvas.addEventListener('click', function (e) {
+        var cursor;
+        cursor = {
+            x: e.clientX,
+            y: e.clientY
+        };
+
+        switch (_mode) {
+            case 'add':
+                if (isPositionClose(_addPolygon[0], cursor)) {
+                    if (_addPolygon.length > 2) {
+                        // remove the last point which is from mousemove event
+                        _addPolygon.pop();
+                        // close polygon
+                        polygons.push({
+                            points: _addPolygon.slice(0),
+                            color: foregroundColor,
+                            lineColor: foregroundColor,
+                            lineWidth: 1
+                        });
+                        _addPolygon = [];
+                        obj.mode = 'show';
+                        obj.draw();
+                    }
+                } else {
+                    _addPolygon.push(cursor);
+                    obj.draw();
+                }
+                break;
+        }
+    });
+
     canvas.addEventListener('mousedown', function (e) {
         var insidePolygonIdx = getInsidePolygon([e.clientX, e.clientY]),
-            _onEditPolygonPoints,
-            distance;
+            _onEditPolygonPoints;
 
         switch (_mode) {
             case 'show':
@@ -224,18 +316,18 @@ module.exports = function (canvas) {
                }
                break;
             case 'edit':
-                distance = 20;
                 _onEditPolygonPoints = polygons[_onEditPolygonIdx].points;
                 selected = _onEditPolygonPoints.findIndex(function (d) {
-                    var a = Math.pow(d.x - e.clientX, 2),
-                        b = Math.pow(d.y - e.clientY, 2),
-                        c = Math.pow(distance, 2);
-
-                    return a + b < c;
+                    var cursor;
+                    cursor = {
+                        x: e.clientX,
+                        y: e.clientY
+                    };
+                    return isPositionClose(d, cursor);
                 });
                 if (!~selected) {  // not on the dots of on edit polygon
                     if (~insidePolygonIdx) {  // inside a polygon
-                        if (insidePolygonIdx === _onEditPolygonIdx) {  
+                        if (insidePolygonIdx === _onEditPolygonIdx) {
                             // inside the on edit polygon
                             // set the drag start point
                             _onDragStart = _onEditPolygonPoints.map(function (d, i) {
@@ -275,7 +367,7 @@ module.exports = function (canvas) {
                 break;
         }
     });
-    
+
 
     return obj
 }
