@@ -1,9 +1,28 @@
 <!doctype html>
 <html>
 <head>
+<style>
+    #canvas {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    #container {
+        margin: 0 auto;
+        width: 640px;
+        height: 358px;
+    }
+</style>
 </head>
 <body>
-    <canvas id=canvas width=960 height=540></canvas>
+    <div id="container">
+        <canvas id=canvas width=640 height=358></canvas>
+    </div>
+    <button type="button" id="btn-add">add</button>
+    <button type="button" id="btn-remove">remove</button>
+    <button type="button" id="btn-edit">edit</button>
     <script type="text/javascript" src="assets/bundle.js"></script>
 </body>
 </html>

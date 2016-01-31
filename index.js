@@ -16,10 +16,18 @@ module.exports = function (canvas) {
         polygons = [],
         _activatedPolygon = -1,
         _onEditPolygonIdx = -1,
-        _mode = 'show',
+        _mode = 'display',
         _onDragStart,
         _addPolygon = [],
         selected;
+
+    function flush () {
+        _activatedPolygon = -1;
+        _onEditPolygonIdx = -1;
+        _onDragStart = null;
+        _addPolygon = [];
+        selected = -1;
+    }
 
     function isPositionClose (p1, p2) {
         var distance = 16,
@@ -237,11 +245,14 @@ module.exports = function (canvas) {
         },
         set: function (mode) {
             var validModes = [
+                'display',
                 'edit',
                 'add',
                 'show'
             ];
             if (~validModes.indexOf(mode)) {
+                flush();
+                obj.draw();
                 return _mode = mode;
             }
             console.error('Not an acceptable mode');
@@ -249,6 +260,14 @@ module.exports = function (canvas) {
         }
     });
 
+    obj.removePolygon = function () {
+        var idx = _onEditPolygonIdx;
+        if (~idx) {
+            polygons.splice(idx, 1);
+            obj.mode = 'display';
+            obj.draw();
+        }
+    }
 
     // bind event to controller
     canvas.addEventListener('mousemove', function (e) {
@@ -311,8 +330,7 @@ module.exports = function (canvas) {
                             lineColor: foregroundColor,
                             lineWidth: 1
                         });
-                        _addPolygon = [];
-                        obj.mode = 'show';
+                        obj.mode = 'display';
                         obj.draw();
                     }
                 } else {

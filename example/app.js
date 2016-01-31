@@ -44,6 +44,18 @@ c.backgroundAlpha = .4;
 c.lineWidth = 1;
 c.foreground = '#ff0000';
 c.foregroundAlpha = 0.6;
-c.mode = 'add';
 c.draw();
+
+
+document.getElementById('btn-add').addEventListener('click', function (e) {
+    c.mode = 'add';
+});
+
+document.getElementById('btn-edit').addEventListener('click', function (e) {
+    c.mode = 'show';
+});
+
+document.getElementById('btn-remove').addEventListener('click', function (e) {
+    c.removePolygon();
+});
 
