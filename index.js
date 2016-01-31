@@ -64,12 +64,33 @@ module.exports = function (canvas) {
     function drawPolygon () {
         polygons.slice(0).forEach(function (d, i) {
             ctx.globalCompositeOperation = "destination-over";
+            drawName(d, i);
             drawShape(d, i);
             ctx.globalCompositeOperation = "source-over";
             if (i === _onEditPolygonIdx) {
                 drawDots(d, i);
             }
         });
+    }
+
+    function drawName (polygon, idx) {
+        var copy = polygon.points.slice(0),
+            position = copy[0],
+            name = polygon.name || 'new',
+            textArea = ctx.measureText(name),
+            textWdith = textArea.width,
+            textHeight = textArea.height;
+
+        polygon.points.slice(0).forEach(function (p) {
+            if (p.y < position.y) {
+                position = p;
+            }
+        });
+
+        ctx.font = '16px Arial';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = polygon.color;
+        ctx.fillText(name, position.x + 10, position.y);
     }
 
     function drawShape (settings, idx) {

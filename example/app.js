@@ -13,7 +13,7 @@ function genColor () {
 
 polygons = Array.apply(null, {length: 3}).map(function (data, index, wholeArr) {
     var points;
-    
+
     points = Array.apply(null, {length: 8}).map(function () {
         return {
             x: canvas.width / (wholeArr.length + 1) * (index + 1),
@@ -30,7 +30,8 @@ polygons = Array.apply(null, {length: 3}).map(function (data, index, wholeArr) {
         points: points,
         color: genColor(),
         lineColor: genColor(),
-        lineWidth: 1
+        lineWidth: 1,
+        name: 'Polygon ' + index
     };
 });
 
