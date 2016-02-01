@@ -264,7 +264,7 @@ module.exports = function (canvas) {
         var idx = _onEditPolygonIdx;
         if (~idx) {
             polygons.splice(idx, 1);
-            obj.mode = 'display';
+            obj.mode = 'show';
             obj.draw();
         }
     }
@@ -330,7 +330,7 @@ module.exports = function (canvas) {
                             lineColor: foregroundColor,
                             lineWidth: 1
                         });
-                        obj.mode = 'display';
+                        obj.mode = 'show';
                         obj.draw();
                     }
                 } else {
