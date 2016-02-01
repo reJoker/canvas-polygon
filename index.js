@@ -324,7 +324,7 @@ module.exports = function (canvas) {
                         // remove the last point which is from mousemove event
                         _addPolygon.pop();
                         // close polygon
-                        polygons.push({
+                        polygons.unshift({
                             points: _addPolygon.slice(0),
                             color: foregroundColor,
                             lineColor: foregroundColor,
