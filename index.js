@@ -16,7 +16,7 @@ module.exports = function (canvas) {
         polygons = [],
         _activatedPolygon = -1,
         _onEditPolygonIdx = -1,
-        _mode = 'display',
+        _mode = 'show',
         _onDragStart,
         _addPolygon = [],
         selected;
@@ -269,10 +269,19 @@ module.exports = function (canvas) {
         }
     }
 
+    function enterEditMode (idx) {
+        obj.mode = 'edit';
+        _activatedPolygon = -1;
+        _onEditPolygonIdx = idx;
+        obj.draw();
+    }
+
     // bind event to controller
     canvas.addEventListener('mousemove', function (e) {
         var movingDot,
-            _draggingPolygon;
+            _draggingPolygon,
+            insidePolygonIdx = getInsidePolygon([e.clientX, e.clientY]);
+
         switch (_mode) {
             case 'add':
                 if (_addPolygon && _addPolygon.length) {
@@ -287,8 +296,10 @@ module.exports = function (canvas) {
                 obj.draw();
                 break;
             case 'show':
-                _activatedPolygon = getInsidePolygon([e.clientX, e.clientY]);
-                obj.draw();
+                // _activatedPolygon = getInsidePolygon([e.clientX, e.clientY]);
+                if (~insidePolygonIdx) {
+                    enterEditMode(insidePolygonIdx);
+                }
                 break;
             case 'edit':
                 movingDot = polygons[_onEditPolygonIdx].points[selected];
@@ -304,6 +315,12 @@ module.exports = function (canvas) {
                         };
                     });
                     polygons[_onEditPolygonIdx].points = _draggingPolygon;
+                    obj.draw();
+                } else if (~insidePolygonIdx) {
+                    enterEditMode(insidePolygonIdx);
+                } else {
+                    obj.mode = 'show';
+                    _onEditPolygonIdx = -1;
                     obj.draw();
                 }
                 break;
@@ -348,10 +365,7 @@ module.exports = function (canvas) {
         switch (_mode) {
             case 'show':
                if (~insidePolygonIdx) {
-                   obj.mode = 'edit';
-                   _activatedPolygon = -1;
-                   _onEditPolygonIdx = insidePolygonIdx;
-                   obj.draw();
+                   enterEditMode(insidePolygonIdx);
                }
                break;
             case 'edit':
