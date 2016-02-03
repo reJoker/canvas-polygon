@@ -19,6 +19,7 @@ module.exports = function (canvas) {
         _mode = 'show',
         _onDragStart,
         _addPolygon = [],
+        _doesPolygonNamesShow = false,
         selected;
 
     function flush () {
@@ -72,7 +73,15 @@ module.exports = function (canvas) {
     function drawPolygon () {
         polygons.slice(0).forEach(function (d, i) {
             ctx.globalCompositeOperation = "destination-over";
-            drawName(d, i);
+            if (~_onEditPolygonIdx) {
+                if (i === _onEditPolygonIdx) {
+                    drawName(d, i);
+                }
+            } else {
+                if (_doesPolygonNamesShow) {
+                    drawName(d, i);
+                }
+            }
             drawShape(d, i);
             ctx.globalCompositeOperation = "source-over";
             if (i === _onEditPolygonIdx) {
@@ -259,6 +268,17 @@ module.exports = function (canvas) {
             return;
         }
     });
+
+    Object.defineProperty(obj, 'showPolygonNames', {
+        get: function () {
+            return _doesPolygonNamesShow;
+        },
+        set: function (bool) {
+            _doesPolygonNamesShow = bool;
+            obj.draw();
+        }
+    });
+
 
     obj.removePolygon = function () {
         var idx = _onEditPolygonIdx;

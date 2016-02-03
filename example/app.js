@@ -46,6 +46,13 @@ c.foreground = '#ff0000';
 c.foregroundAlpha = 0.6;
 c.draw();
 
+canvas.addEventListener('mouseenter', function (e) {
+    c.showPolygonNames = true;
+});
+
+canvas.addEventListener('mouseleave', function (e) {
+    c.showPolygonNames = false;
+});
 
 document.getElementById('btn-add').addEventListener('click', function (e) {
     c.mode = 'add';
