@@ -47,6 +47,22 @@ module.exports = function (canvas) {
         return a + b < c;
     }
 
+    function getMousePos (evt) {
+        var bounding = canvas.getBoundingClientRect(),
+            pos = {
+                x: null,
+                y: null
+            };
+        if (evt.offsetX || evt.offsetX == 0) {
+            pos.x = evt.offsetX;
+            pos.y = evt.offsetY;
+        } else if (evt.layerX || evt.layerX == 0) {
+            pos.x = evt.layerX;
+            pos.y = evt.layerY;
+        }
+        return pos;
+    }
+
     function getInsidePolygon (cursorPosition) {
         return polygons.slice(0).findIndex(function (polygon) {
             var p = polygon.points.map(function (d) {
@@ -300,7 +316,8 @@ module.exports = function (canvas) {
     canvas.addEventListener('mousemove', function (e) {
         var movingDot,
             _draggingPolygon,
-            insidePolygonIdx = getInsidePolygon([e.clientX, e.clientY]);
+            mousePos = getMousePos(e),
+            insidePolygonIdx = getInsidePolygon([mousePos.x, mousePos.y]);
 
         switch (_mode) {
             case 'add':
@@ -308,10 +325,7 @@ module.exports = function (canvas) {
                     if (_addPolygon.length > 1) {
                         _addPolygon.pop();
                     }
-                    _addPolygon.push({
-                        x: e.clientX,
-                        y: e.clientY
-                    });
+                    _addPolygon.push(mousePos);
                 }
                 obj.draw();
                 break;
@@ -324,14 +338,14 @@ module.exports = function (canvas) {
             case 'edit':
                 movingDot = polygons[_onEditPolygonIdx].points[selected];
                 if (movingDot) {
-                    movingDot.x = e.clientX;
-                    movingDot.y = e.clientY;
+                    movingDot.x = mousePos.x;
+                    movingDot.y = mousePos.y;
                     obj.draw();
                 } else if (_onDragStart) {
                     _draggingPolygon = _onDragStart.map(function (d, i) {
                         return {
-                            x: d.x + e.clientX,
-                            y: d.y + e.clientY
+                            x: d.x + mousePos.x,
+                            y: d.y + mousePos.y
                         };
                     });
                     polygons[_onEditPolygonIdx].points = _draggingPolygon;
@@ -348,11 +362,7 @@ module.exports = function (canvas) {
     });
 
     canvas.addEventListener('click', function (e) {
-        var cursor;
-        cursor = {
-            x: e.clientX,
-            y: e.clientY
-        };
+        var cursor = getMousePos(e);
 
         switch (_mode) {
             case 'add':
@@ -379,7 +389,8 @@ module.exports = function (canvas) {
     });
 
     canvas.addEventListener('mousedown', function (e) {
-        var insidePolygonIdx = getInsidePolygon([e.clientX, e.clientY]),
+        var mousePos = getMousePos(e),
+            insidePolygonIdx = getInsidePolygon([mousePos.x, mousePos.y]),
             _onEditPolygonPoints;
 
         switch (_mode) {
@@ -391,12 +402,7 @@ module.exports = function (canvas) {
             case 'edit':
                 _onEditPolygonPoints = polygons[_onEditPolygonIdx].points;
                 selected = _onEditPolygonPoints.findIndex(function (d) {
-                    var cursor;
-                    cursor = {
-                        x: e.clientX,
-                        y: e.clientY
-                    };
-                    return isPositionClose(d, cursor);
+                    return isPositionClose(d, mousePos);
                 });
                 if (!~selected) {  // not on the dots of on edit polygon
                     if (~insidePolygonIdx) {  // inside a polygon
@@ -405,8 +411,8 @@ module.exports = function (canvas) {
                             // set the drag start point
                             _onDragStart = _onEditPolygonPoints.map(function (d, i) {
                                 return {
-                                    x: d.x - e.clientX,
-                                    y: d.y - e.clientY
+                                    x: d.x - mousePos.x,
+                                    y: d.y - mousePos.y
                                 };
                             });
                         } else {
