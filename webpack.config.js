@@ -1,7 +1,15 @@
+var webpack = require('webpack');
 module.exports = {
-    entry: './example/app.js',
+    entry: {
+        bundle: './example/app.js',
+        bundle2: './example/app2.js',
+        canvasPolygon: './example/export.js'
+    },
     output: {
-        filename: 'bundle.js',
+        filename: '[name].js',
         path: './example/assets'
-    }
+    },
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin({minimize: true})
+    ]
 }

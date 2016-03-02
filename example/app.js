@@ -44,6 +44,10 @@ c.backgroundAlpha = .4;
 c.lineWidth = 1;
 c.foreground = '#ff0000';
 c.foregroundAlpha = 0.6;
+c.onSelect(function (curr, idx, arr) {
+    console.log(curr, idx, arr);
+    curr.name = 'selected';
+});
 c.draw();
 
 canvas.addEventListener('mouseenter', function (e) {

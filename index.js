@@ -20,11 +20,30 @@ module.exports = function (canvas) {
         _onDragStart,
         _addPolygon = [],
         _doesPolygonNamesShow = false,
-        selected;
+        selected,
+        onSelect;  // call back function when any polygon got selected
+
+
+    function setEditPolygonIdx (idx) {
+        _onEditPolygonIdx = idx;
+        if (typeof onSelect === 'function') {
+            onSelect(polygons[idx], idx, polygons);
+        }
+    }
+
+    function setDragStart (mousePos) {
+        var _onEditPolygonPoints = polygons[_onEditPolygonIdx].points;
+        _onDragStart = _onEditPolygonPoints.map(function (d, i) {
+            return {
+                x: d.x - mousePos.x,
+                y: d.y - mousePos.y
+            };
+        });
+    }
 
     function flush () {
         _activatedPolygon = -1;
-        _onEditPolygonIdx = -1;
+        setEditPolygonIdx(-1);
         _onDragStart = null;
         _addPolygon = [];
         selected = -1;
@@ -305,10 +324,16 @@ module.exports = function (canvas) {
         }
     }
 
+    obj.onSelect = function (cb) {
+        if (typeof cb === 'function') {
+            onSelect = cb;
+        }
+    }
+
     function enterEditMode (idx) {
         obj.mode = 'edit';
         _activatedPolygon = -1;
-        _onEditPolygonIdx = idx;
+        setEditPolygonIdx(idx);
         obj.draw();
     }
 
@@ -331,9 +356,11 @@ module.exports = function (canvas) {
                 break;
             case 'show':
                 // _activatedPolygon = getInsidePolygon([e.clientX, e.clientY]);
+                /*
                 if (~insidePolygonIdx) {
                     enterEditMode(insidePolygonIdx);
                 }
+                */
                 break;
             case 'edit':
                 movingDot = polygons[_onEditPolygonIdx].points[selected];
@@ -350,13 +377,17 @@ module.exports = function (canvas) {
                     });
                     polygons[_onEditPolygonIdx].points = _draggingPolygon;
                     obj.draw();
-                } else if (~insidePolygonIdx) {
+                }
+                break;
+                /*
+                else if (~insidePolygonIdx) {
                     enterEditMode(insidePolygonIdx);
                 } else {
                     obj.mode = 'show';
                     _onEditPolygonIdx = -1;
                     obj.draw();
                 }
+                */
                 break;
         }
     });
@@ -395,10 +426,16 @@ module.exports = function (canvas) {
 
         switch (_mode) {
             case 'show':
-               if (~insidePolygonIdx) {
-                   enterEditMode(insidePolygonIdx);
-               }
-               break;
+                if (~insidePolygonIdx) {
+                    enterEditMode(insidePolygonIdx);
+
+                    setDragStart(mousePos);
+                } else {  // ouside of all the polygons
+                    obj.mode = 'show'
+                    setEditPolygonIdx(-1);
+                    obj.draw();
+                }
+                break;
             case 'edit':
                 _onEditPolygonPoints = polygons[_onEditPolygonIdx].points;
                 selected = _onEditPolygonPoints.findIndex(function (d) {
@@ -406,22 +443,13 @@ module.exports = function (canvas) {
                 });
                 if (!~selected) {  // not on the dots of on edit polygon
                     if (~insidePolygonIdx) {  // inside a polygon
-                        if (insidePolygonIdx === _onEditPolygonIdx) {
-                            // inside the on edit polygon
-                            // set the drag start point
-                            _onDragStart = _onEditPolygonPoints.map(function (d, i) {
-                                return {
-                                    x: d.x - mousePos.x,
-                                    y: d.y - mousePos.y
-                                };
-                            });
-                        } else {
-                            _onEditPolygonIdx = insidePolygonIdx;
-                            obj.draw();
+                        if (insidePolygonIdx !== _onEditPolygonIdx) {
+                            enterEditMode(insidePolygonIdx);
                         }
+                        setDragStart(mousePos);
                     } else {  // ouside of all the polygons
                         obj.mode = 'show'
-                        _onEditPolygonIdx = -1;
+                        setEditPolygonIdx(-1);
                         obj.draw();
                     }
                 }
