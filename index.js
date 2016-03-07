@@ -324,6 +324,12 @@ module.exports = function (canvas) {
         }
     }
 
+    obj.addPolygon = function (polygon) {
+        polygons.push(polygon);
+        enterEditMode(polygons.length - 1);
+    };
+
+
     obj.onSelect = function (cb) {
         if (typeof cb === 'function') {
             onSelect = cb;
